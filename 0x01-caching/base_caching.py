@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bi:wqn/python3
 """ BaseCaching module
 """
 

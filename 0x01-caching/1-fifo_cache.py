@@ -1,32 +1,42 @@
 #!/usr/bin/python3
-""" FIFOCache module """
-BaseCaching = __import__('base_caching').BaseCaching
+""" FIFO caching """
+from base_caching import BaseCaching
 
 
 class FIFOCache(BaseCaching):
-    """Implements the FIFO replacement policy"""
-    def __init__(self) -> None:
+    """ Class that inherits from BaseCaching and is a caching system """
+    def __init__(self):
         super().__init__()
-        self.keys_queue = []
+        self.data = {}
+        self.next_in, self.next_out = 0, 0
+
+    def _pop(self):
+        """ FIFO algorithm, remove element """
+        self.next_out += 1
+        key = self.data[self.next_out]
+        del self.data[self.next_out], self.cache_data[key]
+
+    def _push(self, key, item):
+        """ FIFO algorithm, add element """
+        if len(self.cache_data) > BaseCaching.MAX_ITEMS - 1:
+            print("DISCARD: {}".format(self.data[self.next_out + 1]))
+            self._pop()
+        self.cache_data[key] = item
+        self.next_in += 1
+        self.data[self.next_in] = key
 
     def put(self, key, item):
-        """assign to the dictionary self.cache_data the
-        item value for the key key"""
-        if key in self.cache_data:
-            self.cache_data[key] = item
-        else:
-            if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-                # remove old item from the cache
-                old_key = self.keys_queue.pop(0)
-                print(f"DISCARD: {old_key}", end='\n')
-                del self.cache_data[old_key]
-        # append the new item to tha cached_data
-        self.cache_data[key] = item
-        self.keys_queue.append(key)
+        """ Assign to the dictionary """
+        if key and item:
+            if key in self.cache_data:
+                self.cache_data[key] = item
+            else:
+                self._push(key, item)
 
     def get(self, key):
-        """Returns the value in self.cache_data linked to the key """
-        if key in self.cache_data:
-            return self.cache_data[key]
-        else:
+        """ Return the value linked """
+        if key is None or self.cache_data.get(key) is None:
             return None
+        if key in self.cache_data:
+            value = self.cache_data[key]
+            return value
